@@ -1,0 +1,5 @@
+# Ignore the bin folder where you build your binary:
+bin/
+db/
+.vscode
+

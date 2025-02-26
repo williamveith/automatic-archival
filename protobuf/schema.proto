@@ -1,0 +1,39 @@
+// protoc --go_out=. protobuf/schema.proto
+syntax = "proto3";
+
+package database;
+
+option go_package = "internal/database";
+
+message LineItem {
+  string date = 1;
+  string time = 2;
+  string prof = 3;
+  string user = 4;
+  string tool = 5;
+  double usage = 6;
+  double rate = 7;
+  double cost = 8;
+  double applied_cost = 9;
+}
+
+message Invoice {
+  string period = 1;
+  string group = 2;
+  double usage = 3;
+  double cost = 4;
+  double applied_cost = 5;
+  double surcharge = 6;
+  double tax = 7;
+  repeated LineItem lineitems = 8;
+}
+
+message Year {
+  string period = 1;
+  double usage = 2;
+  double cost = 3;
+  double applied_cost = 4;
+  double surcharge = 5;
+  double tax = 6;
+  repeated Invoice invoices = 7;
+}
