@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 	"strings"
 	sync "sync"
 
@@ -28,16 +26,25 @@ VALUES %s
 ON CONFLICT DO NOTHING
 `
 
-func NewDatabasePath() string {
-	exePath, err := os.Executable()
-	if err != nil {
-		log.Fatalf("Failed to get executable path: %v", err)
+func NewDatabase(dbPath string) *Database {
+	var err error
+
+	database := &Database{
+		dbName: dbPath,
+		schema: generateSchemaFromProto(&LineItem{}, "invoices"),
 	}
 
-	projectRoot := filepath.Dir(filepath.Dir(exePath))
-	dbPath := filepath.Join(projectRoot, "db", "invoices.sqlite3")
+	database.db, err = sql.Open("sqlite3", database.dbName)
+	if err != nil {
+		log.Fatalf("Failed to open SQLite database: %v", err)
+	}
 
-	return dbPath
+	_, err = database.db.Exec(database.schema)
+	if err != nil {
+		log.Fatalf("Failed to initialize database schema: %v", err)
+	}
+
+	return database
 }
 
 func getSQLiteType(kind protoreflect.Kind) string {
@@ -81,27 +88,6 @@ func generateSchemaFromProto(message proto.Message, tableName string) string {
 
 	schemaBuilder.WriteString("\n);")
 	return schemaBuilder.String()
-}
-
-func NewDatabase(dbPath string) *Database {
-	var err error
-
-	database := &Database{
-		dbName: dbPath,
-		schema: generateSchemaFromProto(&LineItem{}, "invoices"),
-	}
-
-	database.db, err = sql.Open("sqlite3", database.dbName)
-	if err != nil {
-		log.Fatalf("Failed to open SQLite database: %v", err)
-	}
-
-	_, err = database.db.Exec(database.schema)
-	if err != nil {
-		log.Fatalf("Failed to initialize database schema: %v", err)
-	}
-
-	return database
 }
 
 func (cdb *Database) InsertData(rows [][]interface{}) {

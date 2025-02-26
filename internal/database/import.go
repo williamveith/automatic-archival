@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/golang/snappy"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -42,15 +43,20 @@ func (cdb *Database) Import(importPath string) error {
 
 	for _, entry := range entries {
 		// Only process regular files with .bin extension
-		if !entry.Type().IsRegular() || filepath.Ext(entry.Name()) != ".bin" {
+		if !entry.Type().IsRegular() || filepath.Ext(entry.Name()) != ".snappy" {
 			continue
 		}
 
 		filePath := filepath.Join(importPath, entry.Name())
 
-		data, err := os.ReadFile(filePath)
+		compressedData, err := os.ReadFile(filePath)
 		if err != nil {
 			return fmt.Errorf("failed to read file %q: %w", filePath, err)
+		}
+
+		data, err := snappy.Decode(nil, compressedData)
+		if err != nil {
+			return fmt.Errorf("failed to decompress file %q: %w", filePath, err)
 		}
 
 		// Unmarshal into a Year message (from schema.pb.go)

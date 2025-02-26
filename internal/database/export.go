@@ -1,7 +1,6 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/golang/snappy"
 
 	"google.golang.org/protobuf/proto"
 )
@@ -24,28 +25,11 @@ func parseFloatCommaSafe(s string) (float64, error) {
 	return strconv.ParseFloat(s, 64)
 }
 
-func (cdb *Database) Export(dbPath string, exportPath string) error {
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		log.Fatalf("failed to open db: %v", err)
-	}
-	defer db.Close()
-
+func (cdb *Database) Export(exportPath string) error {
 	// Query all rows (adjust columns as needed).
 	// If your table name is something else or your columns differ, change accordingly.
-	rows, err := db.Query(`
-        SELECT
-            date,
-            time,
-            prof,
-            user,
-            tool,
-            usage,
-            rate,
-            cost,
-            applied_cost
-        FROM invoices
-    `)
+	rows, err := cdb.db.Query(`SELECT * FROM invoices`)
+
 	if err != nil {
 		log.Fatalf("failed to query rows: %v", err)
 	}
@@ -177,13 +161,35 @@ func (cdb *Database) Export(dbPath string, exportPath string) error {
 			log.Fatalf("failed to marshal Year for %s: %v", y, err)
 		}
 
-		if err := os.WriteFile(outFile, data, 0644); err != nil {
-			log.Fatalf("failed to write file %s: %v", outFile, err)
+		if err := saveSnappyProto(data, outFile); err != nil {
+			log.Fatalf("failed to write Snappy compressed file %s: %v", outFile, err)
 		}
 
 		fmt.Printf("Wrote year file: %s\n", outFile)
 	}
 
 	fmt.Println("All done.")
+	return nil
+}
+
+func saveSnappyProto(data []byte, outFile string) error {
+	// Create file with .snappy extension
+	outFile += ".snappy"
+	file, err := os.Create(outFile)
+	if err != nil {
+		return fmt.Errorf("failed to create compressed file: %w", err)
+	}
+	defer file.Close()
+
+	// Compress data using Snappy
+	compressedData := snappy.Encode(nil, data)
+
+	// Write compressed data to file
+	_, err = file.Write(compressedData)
+	if err != nil {
+		return fmt.Errorf("failed to write snappy compressed data: %w", err)
+	}
+
+	fmt.Printf("Snappy compressed file written: %s\n", outFile)
 	return nil
 }

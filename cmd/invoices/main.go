@@ -23,7 +23,7 @@ func importFromBin(dbPath string, binDir string) error {
 func exportToBin(dbPath string, binDir string) error {
 	db := database.NewDatabase(dbPath)
 
-	if err := db.Export(dbPath, binDir); err != nil {
+	if err := db.Export(binDir); err != nil {
 		return fmt.Errorf("export failed: %w", err)
 	}
 	return nil
