@@ -30,7 +30,7 @@ clean:
 	@echo "Clean complete."
 
 code-export:
-	@git archive --format=tar.gz --output=project.tar.gz HEAD
+	@git archive --format=tar.gz --output=invoice-archive-import-export.tar.gz HEAD
 
 # Help command to display available targets
 help:
