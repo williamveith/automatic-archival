@@ -47,36 +47,34 @@ This ensures that **each year is guaranteed to be complete** and that invoices r
 
 ```sh
 .
+├── LICENSE
+├── Makefile
+├── README.md
 ├── cmd
 │   └── invoices
-│       └── main.go          # Main CLI entrypoint
-├── internal
-│   └── database
-│       ├── database.go      # Database struct & connection logic
-│       ├── export.go        # Export logic
-│       ├── import.go        # Import logic
-│       └── schema.pb.go     # Generated Protobuf code
-├── protobuf
-│   └── schema.proto         # Protobuf definitions
-├── db                       # Local db folder (ignored by git)
-│   ├── invoices.sqlite3     # SQLite DB (not in repo)
-│   └── archive              # *.bin files (not in repo)
-├── bin
-│   ├── invoices             # Compiled binary output
-│   └── logs                 # Build logs
+│       └── main.go
 ├── go.mod
 ├── go.sum
-├── Makefile
-└── README.md                # This README
+├── internal
+│   └── database
+│       ├── database.go
+│       ├── export.go
+│       ├── export_test.go
+│       ├── import.go
+│       ├── import_test.go
+│       ├── schema.pb.go
+│       └── sql
+│           ├── insert.sql
+│           └── schema.sql
+└── protobuf
+    └── schema.proto
 ```
-
-**Note**: The `db/` and `bin/` directories are ignored in `.gitignore` to prevent local databases and build artifacts from being committed.
 
 ---
 
 ## Requirements
 
-- **Go 1.18+** (or newer)  
+- **Go 1.23.2+**
 - **protoc** (Protocol Buffers compiler) if you need to re-generate `schema.pb.go`.  
 - A Unix-like shell for running the `Makefile` commands (macOS, Linux, Git Bash on Windows, etc.).
 
