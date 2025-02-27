@@ -5,6 +5,6 @@ import (
 )
 
 func TestExport(t *testing.T) {
-	db := NewDatabase("/Users/main/Projects/Invoicing Archive/Invoices copy/db/invoices.sqlite3")
-	db.Export("/Users/main/Projects/Invoicing Archive/Invoices copy/db/Archive2")
+	db := NewDatabase("db/invoices.sqlite3")
+	db.Export("db/Archive2")
 }

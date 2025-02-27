@@ -5,7 +5,7 @@ builds:
     main: ./cmd/invoices/main.go
     binary: invoices
     env:
-      - CGO_ENABLED=1
+      - CGO_ENABLED=0
     goos:
       - linux
       - darwin
@@ -17,7 +17,6 @@ builds:
 archives:
   - format: tar.gz
     files:
-      - invoices
       - README.md
       - LICENSE
     format_overrides:
@@ -32,5 +31,5 @@ snapshot:
 
 release:
   github:
-    owner: your_org
-    name: your_project  # Replace with your actual GitHub repo name
+    owner: williamveith
+    name: automaticarchival 
