@@ -11,6 +11,7 @@
 .vscode/
 .DS_Store
 LICENSE.md
+README.md
 
 # Go build artifacts
 *.exe
