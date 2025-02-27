@@ -14,7 +14,7 @@ message LineItem {
   double usage = 6;
   double rate = 7;
   double cost = 8;
-  double applied_cost = 9;
+  double applied = 9;
 }
 
 message Invoice {
@@ -22,7 +22,7 @@ message Invoice {
   string group = 2;
   double usage = 3;
   double cost = 4;
-  double applied_cost = 5;
+  double applied = 5;
   double surcharge = 6;
   double tax = 7;
   repeated LineItem lineitems = 8;
@@ -32,7 +32,7 @@ message Year {
   string period = 1;
   double usage = 2;
   double cost = 3;
-  double applied_cost = 4;
+  double applied = 4;
   double surcharge = 5;
   double tax = 6;
   repeated Invoice invoices = 7;

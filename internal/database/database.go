@@ -1,20 +1,20 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 	sync "sync"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Database struct {
 	dbName string
 	schema string
-	db     *sql.DB
+	db     *sqlx.DB
 	lock   sync.Mutex
 }
 
@@ -31,7 +31,7 @@ func NewDatabase(dbPath string) *Database {
 		schema: readSqlStatement("sql/schema.sql"),
 	}
 
-	database.db, err = sql.Open("sqlite3", database.dbName)
+	database.db, err = sqlx.Open("sqlite3", database.dbName)
 	if err != nil {
 		log.Fatalf("Failed to open SQLite database: %v", err)
 	}

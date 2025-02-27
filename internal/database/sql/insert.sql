@@ -1,3 +1,3 @@
-INSERT INTO invoices (date, time, prof, user, tool, usage, rate, cost, applied_cost) 
+INSERT INTO invoices (date, time, prof, user, tool, usage, rate, cost, applied) 
 VALUES %s
 ON CONFLICT DO NOTHING
