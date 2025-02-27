@@ -4,11 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	sync "sync"
-
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -20,18 +18,17 @@ type Database struct {
 	lock   sync.Mutex
 }
 
-const InsertSql string = `
-INSERT INTO invoices (date, time, prof, user, tool, usage, rate, cost, applied_cost) 
-VALUES %s
-ON CONFLICT DO NOTHING
-`
+func readSqlStatement(filePath string) string {
+	data, _ := os.ReadFile(filePath)
+	return string(data)
+}
 
 func NewDatabase(dbPath string) *Database {
 	var err error
 
 	database := &Database{
 		dbName: dbPath,
-		schema: generateSchemaFromProto(&LineItem{}, "invoices"),
+		schema: readSqlStatement("sql/schema.sql"),
 	}
 
 	database.db, err = sql.Open("sqlite3", database.dbName)
@@ -45,49 +42,6 @@ func NewDatabase(dbPath string) *Database {
 	}
 
 	return database
-}
-
-func getSQLiteType(kind protoreflect.Kind) string {
-	switch kind {
-	case protoreflect.StringKind:
-		return "TEXT NOT NULL"
-	case protoreflect.FloatKind, protoreflect.DoubleKind:
-		return "REAL NOT NULL"
-	case protoreflect.Int32Kind, protoreflect.Int64Kind:
-		return "INTEGER NOT NULL"
-	default:
-		return "TEXT NOT NULL" // Default fallback
-	}
-}
-
-func generateSchemaFromProto(message proto.Message, tableName string) string {
-	msgDescriptor := message.ProtoReflect().Descriptor()
-
-	var schemaBuilder strings.Builder
-	schemaBuilder.WriteString("PRAGMA journal_mode=WAL;\n")
-	schemaBuilder.WriteString(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (\n", tableName))
-
-	fieldCount := msgDescriptor.Fields().Len()
-	columns := []string{} // Store column names for the UNIQUE constraint
-
-	for i := 0; i < fieldCount; i++ {
-		field := msgDescriptor.Fields().Get(i)
-		columnName := string(field.Name())
-		sqliteType := getSQLiteType(field.Kind())
-
-		if i > 0 {
-			schemaBuilder.WriteString(",\n")
-		}
-		schemaBuilder.WriteString(fmt.Sprintf("  %s %s", columnName, sqliteType))
-		columns = append(columns, columnName)
-	}
-
-	if len(columns) > 0 {
-		schemaBuilder.WriteString(",\n  UNIQUE(" + strings.Join(columns, ", ") + ")")
-	}
-
-	schemaBuilder.WriteString("\n);")
-	return schemaBuilder.String()
 }
 
 func (cdb *Database) InsertData(rows [][]interface{}) {
@@ -105,6 +59,7 @@ func (cdb *Database) InsertData(rows [][]interface{}) {
 	}
 
 	const batchSize = 1000
+	insertSqlTemplate := readSqlStatement("sql/insert.sql")
 	for i := 0; i < len(rows); i += batchSize {
 		end := i + batchSize
 		if end > len(rows) {
@@ -126,7 +81,7 @@ func (cdb *Database) InsertData(rows [][]interface{}) {
 			values = append(values, row...)
 		}
 
-		query := fmt.Sprintf(InsertSql, strings.Join(placeholders, ","))
+		query := fmt.Sprintf(insertSqlTemplate, strings.Join(placeholders, ","))
 		_, err := tx.Exec(query, values...)
 		if err != nil {
 			tx.Rollback()
