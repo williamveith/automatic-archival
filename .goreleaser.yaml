@@ -2,6 +2,10 @@ version: 2
 
 project_name: invoices
 
+before:
+  hooks:
+    - rm -f README.md LICENSE.md || true
+    
 builds:
   - id: invoices
     main: ./cmd/invoices/main.go
@@ -31,4 +35,4 @@ snapshot:
 release:
   github:
     owner: williamveith
-    name: automaticarchival 
+    name: automaticarchival

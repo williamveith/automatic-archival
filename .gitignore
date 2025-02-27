@@ -9,6 +9,7 @@
 *.sqlite3-wal
 *.snappy
 .vscode/
+.DS_Store
 
 # Go build artifacts
 *.exe
