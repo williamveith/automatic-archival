@@ -18,6 +18,7 @@ func (cdb *Database) Export(exportPath string) error {
 	if err != nil {
 		log.Fatalf("failed to query rows: %v", err)
 	}
+
 	defer rows.Close()
 	yearInvoices := make(map[string]map[string]*Invoice)
 
