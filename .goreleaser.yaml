@@ -2,26 +2,24 @@ version: 2
 
 project_name: invoices
 
-before:
-  hooks:
-    - rm -f README.md LICENSE.md || true
-    
 builds:
   - id: invoices
     main: ./cmd/invoices/main.go
     binary: invoices
     env:
-      - CGO_ENABLED=0
+      - CGO_ENABLED=1
     goos:
       - linux
       - darwin
-      - windows
     goarch:
       - amd64
       - arm64
 
 archives:
   - format: tar.gz
+    files:
+      - README.md
+      - LICENSE
     format_overrides:
       - goos: windows
         format: zip
@@ -35,4 +33,4 @@ snapshot:
 release:
   github:
     owner: williamveith
-    name: automaticarchival
+    name: automaticarchival 

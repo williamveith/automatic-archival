@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/williamveith/invoices/internal/database"
+	"github.com/williamveith/automatic-archival/internal/database"
 )
 
 func importFromBin(dbPath string, binDir string) error {

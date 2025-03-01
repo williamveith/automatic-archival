@@ -1,6 +1,6 @@
-module github.com/williamveith/invoices
+module github.com/williamveith/automatic-archival
 
-go 1.23.2
+go 1.24.0
 
 require (
 	github.com/golang/snappy v0.0.4
